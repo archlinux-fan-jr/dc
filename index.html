@@ -3,83 +3,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mini Game</title>
+  <title>Donkey Clicker 🫏</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- MENU -->
-  <div id="menu" class="screen active">
-    <h1>Mini Click Game</h1>
-    <button onclick="showLevels()">Start</button>
+<div class="layout">
+
+  <!-- LEFT: CLICK AREA -->
+  <div class="left">
+    <h1>Donkey Clicker 🫏</h1>
+    <img src="donkey.png" id="donkey" onclick="clickDonkey()">
+    <h2><span id="clicks">0</span> clicks</h2>
   </div>
 
-  <!-- LEVEL SELECT -->
-  <div id="levels" class="screen">
-    <h2>Select Level</h2>
-    <button onclick="startGame(1)">Level 1</button>
-    <button onclick="startGame(2)">Level 2</button>
-    <button onclick="goMenu()">Back</button>
-  </div>
+  <!-- RIGHT: SHOP -->
+  <div class="right">
+    <h2>Upgrades</h2>
 
-  <!-- GAME -->
-  <div id="game" class="screen">
-    <h2 id="levelText"></h2>
-    <p>Score: <span id="score">0</span></p>
-    <div id="gameBox">
-      <div id="target" onclick="hit()"></div>
+    <div class="upgrade" onclick="buyUpgrade(1)">
+      <div>
+        <strong>Better Click</strong><br>
+        +1 per click
+      </div>
+      <div>Cost: <span id="cost1">10</span></div>
     </div>
-    <br>
-    <button onclick="goMenu()">Quit</button>
+
+    <div class="upgrade" onclick="buyUpgrade(2)">
+      <div>
+        <strong>Super Click</strong><br>
+        +5 per click
+      </div>
+      <div>Cost: <span id="cost2">50</span></div>
+    </div>
+
   </div>
+
+</div>
 
 <script>
-let score = 0;
-let speed = 1000;
-let gameInterval;
+let clicks = 0;
+let perClick = 1;
 
-function showLevels() {
-  switchScreen('levels');
+let upgrades = {
+  1: { cost: 10, power: 1 },
+  2: { cost: 50, power: 5 }
+};
+
+function clickDonkey() {
+  clicks += perClick;
+  if (clicks > 999) clicks = 999;
+  update();
 }
 
-function goMenu() {
-  clearInterval(gameInterval);
-  switchScreen('menu');
+function buyUpgrade(id) {
+  let up = upgrades[id];
+
+  if (clicks >= up.cost) {
+    clicks -= up.cost;
+    perClick += up.power;
+
+    up.cost = Math.floor(up.cost * 1.4);
+    if (up.cost > 999) up.cost = 999;
+
+    update();
+  }
 }
 
-function startGame(level) {
-  score = 0;
-  document.getElementById('score').innerText = score;
-
-  if (level === 1) speed = 1000;
-  if (level === 2) speed = 600;
-
-  document.getElementById('levelText').innerText = 'Level ' + level;
-
-  switchScreen('game');
-  moveTarget();
-  gameInterval = setInterval(moveTarget, speed);
-}
-
-function switchScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function moveTarget() {
-  const box = document.getElementById('gameBox');
-  const target = document.getElementById('target');
-
-  const x = Math.random() * (box.clientWidth - 40);
-  const y = Math.random() * (box.clientHeight - 40);
-
-  target.style.left = x + 'px';
-  target.style.top = y + 'px';
-}
-
-function hit() {
-  score++;
-  document.getElementById('score').innerText = score;
+function update() {
+  document.getElementById('clicks').innerText = clicks;
+  document.getElementById('cost1').innerText = upgrades[1].cost;
+  document.getElementById('cost2').innerText = upgrades[2].cost;
 }
 </script>
 
