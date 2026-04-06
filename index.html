@@ -1,80 +1,59 @@
 <!-- index.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Donkey Clicker 🫏</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div class="layout">
-
-  <!-- LEFT: CLICK AREA -->
-  <div class="left">
-    <h1>Donkey Clicker 🫏</h1>
-    <img src="donkey.png" id="donkey" onclick="clickDonkey()">
-    <h2><span id="clicks">0</span> clicks</h2>
-  </div>
-
-  <!-- RIGHT: SHOP -->
-  <div class="right">
-    <h2>Upgrades</h2>
-
-    <div class="upgrade" onclick="buyUpgrade(1)">
-      <div>
-        <strong>Better Click</strong><br>
-        +1 per click
-      </div>
-      <div>Cost: <span id="cost1">10</span></div>
-    </div>
-
-    <div class="upgrade" onclick="buyUpgrade(2)">
-      <div>
-        <strong>Super Click</strong><br>
-        +5 per click
-      </div>
-      <div>Cost: <span id="cost2">50</span></div>
-    </div>
-
-  </div>
-
-</div>
-
-<script>
-let clicks = 0;
-let perClick = 1;
-
-let upgrades = {
-  1: { cost: 10, power: 1 },
-  2: { cost: 50, power: 5 }
-};
-
-function clickDonkey() {
-  clicks += perClick;
-  if (clicks > 999) clicks = 999;
-  update();
 }
 
-function buyUpgrade(id) {
-  let up = upgrades[id];
+function buyUpgrade(i){
+  let u = upgrades[i];
+  if(clicks >= u.cost){
+    clicks -= u.cost;
 
-  if (clicks >= up.cost) {
-    clicks -= up.cost;
-    perClick += up.power;
+    if(u.type === "click") perClick += u.power;
+    if(u.type === "cps") cps += u.power;
 
-    up.cost = Math.floor(up.cost * 1.4);
-    if (up.cost > 999) up.cost = 999;
+    u.cost = Math.floor(u.cost * 1.5);
+    if(u.cost>999) u.cost=999;
 
     update();
   }
 }
 
-function update() {
-  document.getElementById('clicks').innerText = clicks;
-  document.getElementById('cost1').innerText = upgrades[1].cost;
-  document.getElementById('cost2').innerText = upgrades[2].cost;
+function checkUnlocks(){
+  upgrades.forEach(u=>{
+    if(!u.unlocked && clicks >= u.unlock) u.unlocked = true;
+  });
 }
+
+function update(){
+  document.getElementById("clicks").innerText = clicks;
+  document.getElementById("cps").innerText = cps;
+
+  let shop = document.getElementById("shop");
+  shop.innerHTML = "";
+
+  upgrades.forEach((u,i)=>{
+    if(u.unlocked){
+      let div = document.createElement("div");
+      div.className = "upgrade";
+      div.onclick = ()=>buyUpgrade(i);
+      div.innerHTML = `
+        <div>
+          <strong>${u.name}</strong><br>
+          ${u.desc}
+        </div>
+        <div>${u.cost}</div>
+      `;
+      shop.appendChild(div);
+    }
+  });
+}
+
+setInterval(()=>{
+  clicks += cps;
+  if(clicks>999) clicks=999;
+  checkUnlocks();
+  update();
+},1000);
+
+update();
 </script>
 
 </body>
