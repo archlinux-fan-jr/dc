@@ -1,0 +1,53 @@
+/* style.css */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #2e3440;
+  color: #eceff4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.screen {
+  display: none;
+  text-align: center;
+}
+
+.active {
+  display: block;
+}
+
+button {
+  padding: 12px 24px;
+  margin: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #5e81ac;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #81a1c1;
+}
+
+#gameBox {
+  width: 300px;
+  height: 300px;
+  background: #3b4252;
+  position: relative;
+  margin: auto;
+  border-radius: 15px;
+}
+
+#target {
+  width: 40px;
+  height: 40px;
+  background: #88c0d0;
+  position: absolute;
+  border-radius: 50%;
+  cursor: pointer;
+}
