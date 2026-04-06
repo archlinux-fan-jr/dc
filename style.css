@@ -6,10 +6,12 @@ body {
   color: #eceff4;
 }
 
+
 .layout {
   display: flex;
   height: 100vh;
 }
+
 
 .left {
   flex: 2;
@@ -20,38 +22,59 @@ body {
   border-right: 2px solid #3b4252;
 }
 
+
 .right {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+  background: #2b303b;
 }
 
+
 #donkey {
-  width: 250px;
+  width: 260px;
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 0.1s ease;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
 }
+
 
 #donkey:active {
   transform: scale(0.9);
 }
 
+
 .upgrade {
   background: #3b4252;
   padding: 15px;
   margin-bottom: 10px;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
-  transition: 0.2s;
+  align-items: center;
+  transition: all 0.2s ease;
+  border: 1px solid #434c5e;
 }
+
 
 .upgrade:hover {
   background: #434c5e;
-  transform: scale(1.02);
+  transform: scale(1.03);
 }
 
-h1, h2 {
+
+h1 {
+  font-size: 2.5rem;
+}
+
+
+h2 {
   margin: 10px;
 }
+
+
+p {
+  opacity: 0.8;
+}
+
