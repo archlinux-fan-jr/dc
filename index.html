@@ -1,4 +1,60 @@
 <!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Donkey Clicker Deluxe 🫏</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- LEFT SIDE -->
+  <div class="left">
+    <h1>Donkey Clicker 🫏</h1>
+
+    <div class="donkey-wrapper">
+      <img src="donkey.png" id="donkey" onclick="clickDonkey()">
+      <div id="floating"></div>
+    </div>
+
+    <h2><span id="clicks">0</span> clicks</h2>
+    <p><span id="cps">0</span> per second</p>
+  </div>
+
+  <!-- RIGHT SIDE SHOP -->
+  <div class="right">
+    <h2>Upgrades</h2>
+    <div id="shop"></div>
+  </div>
+
+</div>
+
+<script>
+let clicks = 0;
+let perClick = 1;
+let cps = 0;
+
+let upgrades = [
+  {name:"Better Click", desc:"+1 per click", cost:10, type:"click", power:1, unlocked:true},
+  {name:"Super Click", desc:"+5 per click", cost:50, type:"click", power:5, unlocked:false, unlock:40},
+  {name:"Mega Click", desc:"+10 per click", cost:120, type:"click", power:10, unlocked:false, unlock:100},
+
+  {name:"Donkey Farm", desc:"+1/sec", cost:80, type:"cps", power:1, unlocked:false, unlock:60},
+  {name:"Donkey Army", desc:"+5/sec", cost:200, type:"cps", power:5, unlocked:false, unlock:150},
+  {name:"Donkey Factory", desc:"+10/sec", cost:400, type:"cps", power:10, unlocked:false, unlock:300},
+  {name:"Donkey Empire", desc:"+25/sec", cost:700, type:"cps", power:25, unlocked:false, unlock:600}
+];
+
+function clickDonkey(){
+  clicks += perClick;
+  if(clicks>999) clicks=999;
+
+  spawnFloating(`+${perClick}`);
+
+  checkUnlocks();
+  update();
 }
 
 function buyUpgrade(i){
@@ -37,13 +93,24 @@ function update(){
       div.innerHTML = `
         <div>
           <strong>${u.name}</strong><br>
-          ${u.desc}
+          <span class="desc">${u.desc}</span>
         </div>
-        <div>${u.cost}</div>
+        <div class="cost">${u.cost}</div>
       `;
       shop.appendChild(div);
     }
   });
+}
+
+function spawnFloating(text){
+  let el = document.createElement("div");
+  el.className = "float";
+  el.innerText = text;
+
+  let wrapper = document.getElementById("floating");
+  wrapper.appendChild(el);
+
+  setTimeout(()=>el.remove(),1000);
 }
 
 setInterval(()=>{
