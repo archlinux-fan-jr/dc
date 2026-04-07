@@ -1,31 +1,62 @@
+<!-- index.html (WORKING + STYLED) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Donkey Clicker 🫏</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button id="themeToggle" onclick="toggleTheme()">🌙</button>
+<button id="resetBtn" onclick="resetGame()">Reset</button>
+
+<div class="layout">
+
+  <div class="left">
+    <h1>Donkey Clicker 🫏</h1>
+
+    <div class="donkey-wrapper">
+      <img src="donkey.png" id="donkey" onclick="clickDonkey()">
+      <div id="floating"></div>
+    </div>
+
+    <h2 id="clicks">0</h2>
+    <p>Manual: <span id="perClick">1</span></p>
+    <p>Auto: <span id="cps">0</span>/s</p>
+  </div>
+
+  <div class="right">
+    <h2>Auto Farmers</h2>
+    <div id="autoShop"></div>
+
+    <h2>Upgrades</h2>
+    <div id="upgradeShop"></div>
+  </div>
+
+</div>
+
+<footer>made by kris</footer>
+
 <script>
 let clicks = 0;
 let perClick = 1;
 let cps = 0;
-
 let autoMultiplier = 1;
 let tempBoost = 1;
 
-// DONKEY RAIN TIMER
-let rainActive = false;
-
-setInterval(()=>{
-  activateRain();
-}, 1200000); // 20 min
-
+// RAIN
+setInterval(()=>activateRain(),1200000);
 function activateRain(){
-  rainActive = true;
   tempBoost = 3;
   updateCPS();
-
   setTimeout(()=>{
-    rainActive = false;
     tempBoost = 1;
     updateCPS();
-  }, 120000); // 2 min
+  },120000);
 }
 
-// AUTO FARMERS (EXPANDED)
+// AUTOS
 let autos = [
   {name:"Baby Donkey", base:0.1, cost:10, level:0, unlock:0},
   {name:"Farm Donkey", base:1, cost:100, level:0, unlock:50},
@@ -38,7 +69,6 @@ let autos = [
   {name:"Multiverse Donkey", base:50000, cost:10000000000, level:0, unlock:1000000000}
 ];
 
-// UPGRADES
 let upgrades = [
   {name:"Double Click", desc:"x2 manual", cost:200, bought:false},
   {name:"Triple Click", desc:"x3 manual", cost:1000, bought:false},
@@ -56,7 +86,7 @@ function format(n){
 
 function clickDonkey(){
   clicks += perClick;
-  spawnFloating(`+${format(perClick)}`);
+  spawnFloating("+"+format(perClick));
   update();
 }
 
@@ -73,9 +103,7 @@ function buyAuto(i){
 
 function updateCPS(){
   cps = 0;
-  autos.forEach(a=>{
-    cps += a.level * a.base;
-  });
+  autos.forEach(a=> cps += a.level * a.base);
   cps *= autoMultiplier * tempBoost;
 }
 
@@ -86,10 +114,10 @@ function buyUpgrade(i){
     clicks -= u.cost;
     u.bought = true;
 
-    if(i===0) perClick *= 2;
-    if(i===1) perClick *= 3;
-    if(i===2) autoMultiplier *= 2;
-    if(i===3) autoMultiplier *= 5;
+    if(i===0) perClick*=2;
+    if(i===1) perClick*=3;
+    if(i===2) autoMultiplier*=2;
+    if(i===3) autoMultiplier*=5;
 
     updateCPS();
     update();
@@ -109,37 +137,28 @@ function update(){
   document.getElementById("perClick").innerText=format(perClick);
   document.getElementById("cps").innerText=format(cps);
 
-  let autoShop = document.getElementById("autoShop");
+  let autoShop=document.getElementById("autoShop");
   autoShop.innerHTML="";
 
   autos.forEach((a,i)=>{
-    if(clicks >= a.unlock){
+    if(clicks>=a.unlock){
       let div=document.createElement("div");
-      div.className="upgrade";
+      div.className="card";
       div.onclick=()=>buyAuto(i);
-      div.innerHTML=`
-        <div>
-          <strong>${a.name}</strong><br>
-          ${a.base}/s each (lvl ${a.level})
-        </div>
-        <div>${format(a.cost)}</div>
-      `;
+      div.innerHTML=`<b>${a.name}</b><br>${a.base}/s (lvl ${a.level})<br>${format(a.cost)}`;
       autoShop.appendChild(div);
     }
   });
 
-  let upgradeShop = document.getElementById("upgradeShop");
+  let upgradeShop=document.getElementById("upgradeShop");
   upgradeShop.innerHTML="";
 
   upgrades.forEach((u,i)=>{
     if(!u.bought){
       let div=document.createElement("div");
-      div.className="upgrade";
+      div.className="card";
       div.onclick=()=>buyUpgrade(i);
-      div.innerHTML=`
-        <div><strong>${u.name}</strong><br>${u.desc}</div>
-        <div>${format(u.cost)}</div>
-      `;
+      div.innerHTML=`<b>${u.name}</b><br>${u.desc}<br>${format(u.cost)}`;
       upgradeShop.appendChild(div);
     }
   });
@@ -148,36 +167,32 @@ function update(){
 }
 
 setInterval(()=>{
-  clicks += cps;
+  clicks+=cps;
   update();
 },1000);
 
-// SAVE
 function save(){
-  localStorage.setItem("donkeySave", JSON.stringify({clicks,perClick,autos,upgrades,autoMultiplier}));
+  localStorage.setItem("save",JSON.stringify({clicks,perClick,autos,upgrades,autoMultiplier}));
 }
 
 function load(){
-  let data=JSON.parse(localStorage.getItem("donkeySave"));
-  if(data){
-    clicks=data.clicks||0;
-    perClick=data.perClick||1;
-    autos=data.autos||autos;
-    upgrades=data.upgrades||upgrades;
-    autoMultiplier=data.autoMultiplier||1;
+  let d=JSON.parse(localStorage.getItem("save"));
+  if(d){
+    clicks=d.clicks||0;
+    perClick=d.perClick||1;
+    autos=d.autos||autos;
+    upgrades=d.upgrades||upgrades;
+    autoMultiplier=d.autoMultiplier||1;
   }
   updateCPS();
 }
 
-function resetGame(){
-  localStorage.clear();
-  location.reload();
-}
-
-function toggleTheme(){
-  document.body.classList.toggle("light");
-}
+function resetGame(){ localStorage.clear(); location.reload(); }
+function toggleTheme(){ document.body.classList.toggle("light"); }
 
 load();
 update();
 </script>
+
+</body>
+</html>
