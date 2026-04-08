@@ -1,29 +1,22 @@
+
 let clicks = 0;
+let basePerClick = 1;
 let perClick = 1;
 let cps = 0;
 let autoMultiplier = 1;
 let tempBoost = 1;
 
-// RAIN EVENT
+// Statistika za posebne nadgradnje
 let rainUnlocked = false;
-function startRainCycle(){
-  rainUnlocked = true;
-
-  setInterval(()=>{
-    tempBoost = 3;
-    updateCPS();
-
-    setTimeout(()=>{
-      tempBoost = 1;
-      updateCPS();
-    },120000); // active 2 min
-
-  },600000); // every 10 min
-}
+let luckChance = 0; 
+let luckMult = 1;
+let combo = 1;
+let maxCombo = 1;
+let comboTimer = null;
+let adrenalineActive = false;
 
 
-
-// AUTOS
+// AVTOMATI (ostanejo enaki)
 let autos = [
   {name:"Baby Donkey", base:0.1, cost:10, level:0, unlock:0},
   {name:"Farm Donkey", base:1, cost:100, level:0, unlock:50},
@@ -46,40 +39,32 @@ let autos = [
   {name:"Legendary Donkey", base:2000000000, cost:10000000000000000, level:0, unlock:1000000000000000},
   {name:"Mythic Donkey", base:10000000000, cost:50000000000000000, level:0, unlock:5000000000000000}
 ];
-// UPGRADES
+
+// 1. DINAMIČNE NADGRADNJE
 let upgrades = [
-  {name:"Double Click", desc:"x2 manual click", cost:100, bought:false},
-  {name:"Triple Click", desc:"x3 manual click", cost:200, bought:false},
-  {name:"Ultra Click", desc:"x5 manual click", cost:1000, bought:false},
-
-
-  {name:"Mega Click", desc:"x7 manual click", cost:5000, bought:false},
-  {name:"Hyper Click", desc:"x10 manual click", cost:15000, bought:false},
-  {name:"Quantum Click", desc:"x25 manual click", cost:100000, bought:false},
-  {name:"God Finger", desc:"x100 manual click", cost:1000000, bought:false},
-  {name:"Donkey rain", desc:"x3 farm every 10 mins for 2 mins", cost:1000000, bought:false},
+  { name: "Double Click", desc: "x2 manual click", cost: 100, bought: false, type: "clickMult", value: 2 },
+  { name: "Triple Click", desc: "x3 manual click", cost: 200, bought: false, type: "clickMult", value: 3 },
+  { name: "Ultra Click", desc: "x4 manual click", cost: 1000, bought: false, type: "clickMult", value: 4 },
+  { name: "Mega Click", desc: "x5 manual click", cost: 5000, bought: false, type: "clickMult", value: 5 },
+  { name: "Donkey rain", desc: "x3 farm every 10 mins for 2 mins", cost: 1000000, bought: false, type: "special", id: "rain" },
   
-/*
-  {name:"Lucky Hoof", desc:"10% chance for 2x click", cost:5000, bought:false},
-  {name:"Golden Hoof", desc:"25% chance for 3x click", cost:50000, bought:false},
-  {name:"Divine Hoof", desc:"50% chance for 5x click", cost:500000, bought:false},
+  // LOGIKA ZA SREČO (Luck)
+  { name: "Lucky Hoof", desc: "10% chance for 2x click", cost: 5000, bought: false, type: "luck", chance: 0.1, mult: 2 },
+  { name: "Divine Hoof", desc: "50% chance for 5x click", cost: 500000, bought: false, type: "luck", chance: 0.5, mult: 5 },
 
-  {name:"Adrenaline", desc:"Clicks are x3 for 5 sec every 30 sec", cost:75000, bought:false},
-  {name:"Overdrive", desc:"Clicks are x10 for 3 sec every 30 sec", cost:500000, bought:false},
+  // ADRENALIN (Časovni boosti)
+  { name: "Adrenaline", desc: "Clicks x3 for 5s every 30s", cost: 75000, bought: false, type: "special", id: "adrenaline" },
 
-  {name:"Heavy Hands", desc:"+1 per click per 10 autos owned", cost:20000, bought:false},
-  {name:"Steel Hands", desc:"+5 per click per 10 autos owned", cost:150000, bought:false},
+  // PASIVNO POVEČANJE GLEDE NA AVTOMATE
+  { name: "Heavy Hands", desc: "+1 per click for every 10 autos", cost: 20000, bought: false, type: "scaling", value: 1 },
 
-  {name:"Combo Starter", desc:"Clicks stack combo (max x5)", cost:25000, bought:false},
-  {name:"Combo Master", desc:"Max combo increased to x10", cost:200000, bought:false},
+  // KOMBO SISTEM
+  { name: "Combo Starter", desc: "Clicks stack combo (max x5)", cost: 25000, bought: false, type: "special", id: "combo5" },
 
-  {name:"Treasure Click", desc:"1% chance to gain 1% of current money", cost:100000, bought:false},
-  {name:"Jackpot Click", desc:"0.1% chance to gain 10% of current money", cost:1000000, bought:false},
-
-  {name:"Momentum", desc:"+1% click power every second (resets on click)", cost:300000, bought:false},
-  {name:"Patience", desc:"No click for 10s → next click x20", cost:750000, bought:false},
-*/
+  // TREASURE CLICK (% od trenutnega denarja)
+  { name: "Treasure Click", desc: "1% chance to gain 1% of bank", cost: 100000, bought: false, type: "special", id: "treasure" }
 ];
+
 
 function format(n){
   if(n>=1e12) return (n/1e12).toFixed(2)+"T";
@@ -89,10 +74,91 @@ function format(n){
   return Math.floor(n).toString();
 }
 
+// 2. DINAMIČEN IZRAČUN MOČI KLIKA
+function calculatePerClick() {
+  let power = basePerClick;
+
+  // Upoštevaj vse kupljene multiplikatorje
+  upgrades.forEach(u => {
+    if (u.bought && u.type === "clickMult") power *= u.value;
+    if (u.bought && u.type === "scaling") {
+        let totalAutos = autos.reduce((sum, a) => sum + a.level, 0);
+        power += Math.floor(totalAutos / 10) * u.value;
+    }
+  });
+
+  // Kombo in Adrenalin
+  power *= combo;
+  if (adrenalineActive) power *= 3;
+
+  return power;
+}
+
 function clickDonkey(){
-  clicks += perClick;
-  spawnFloating("+"+format(perClick));
+  let currentPower = calculatePerClick();
+  let finalGain = currentPower;
+  let msg = "+" + format(finalGain);
+
+  // LOGIKA: Luck (Sreča)
+  upgrades.filter(u => u.bought && u.type === "luck").forEach(u => {
+    if (Math.random() < u.chance) {
+        finalGain *= u.mult;
+        msg = "CRIT! +" + format(finalGain);
+    }
+  });
+
+  // LOGIKA: Treasure Click (1% možnost za 1% banke)
+  if (upgrades.find(u => u.name === "Treasure Click" && u.bought)) {
+      if (Math.random() < 0.01) {
+          let bonus = clicks * 0.01;
+          finalGain += bonus;
+          msg = "JACKPOT! +" + format(finalGain);
+      }
+  }
+
+  clicks += finalGain;
+  
+  // LOGIKA: Kombo sistem
+  if (maxCombo > 1) {
+      combo = Math.min(combo + 0.1, maxCombo);
+      clearTimeout(comboTimer);
+      comboTimer = setTimeout(() => { combo = 1; update(); }, 2000);
+  }
+
+  spawnFloating(msg);
   update();
+}
+
+function buyUpgrade(i){
+  let u = upgrades[i];
+  if(!u.bought && clicks >= u.cost){
+    clicks -= u.cost;
+    u.bought = true;
+
+    // Aktiviraj posebne logike ob nakupu
+    if (u.id === "rain") startRainCycle();
+    if (u.id === "adrenaline") startAdrenalineCycle();
+    if (u.id === "combo5") maxCombo = 5;
+
+    updateCPS();
+    update();
+  }
+}
+
+// SPECIAL EVENTI
+function startRainCycle(){
+  setInterval(()=>{
+    tempBoost = 3;
+    updateCPS();
+    setTimeout(()=>{ tempBoost = 1; updateCPS(); }, 120000);
+  }, 600000);
+}
+
+function startAdrenalineCycle() {
+  setInterval(() => {
+    adrenalineActive = true;
+    setTimeout(() => { adrenalineActive = false; }, 5000);
+  }, 300000); // vsakih 30s (skrajšano za testiranje)
 }
 
 function buyAuto(i){
@@ -112,32 +178,6 @@ function updateCPS(){
   cps *= autoMultiplier * tempBoost;
 }
 
-function buyUpgrade(i){
-  let u = upgrades[i];
-  if(u.bought) return;
-  if(clicks>=u.cost){
-    clicks -= u.cost;
-    u.bought = true;
-
-    if(i===0) perClick*=2;
-    if(i===1) perClick*=3;
-    if(i===2) perClick*=5;
-    if(i===3) perClick*=7;
-    if(i===4) perClick*=10;
-    if(i===5) perClick*=25;
-    if(i===6) perClick*=100;
-    if(i===7) startRainCycle();
-
-    // if(i===3) autoMultiplier*=2;
-    // if(i===4) autoMultiplier*=5;
-    // if(i===5) autoMultiplier*=10;
-
-
-    updateCPS();
-    update();
-  }
-}
-
 function spawnFloating(text){
   let el=document.createElement("div");
   el.className="float";
@@ -147,15 +187,15 @@ function spawnFloating(text){
 }
 
 function update(){
+  perClick = calculatePerClick(); // Osveži vrednost za prikaz
   document.getElementById("clicks").innerText=format(clicks);
-  document.getElementById("perClick").innerText=format(perClick);
+  document.getElementById("perClick").innerText=format(perClick) + (combo > 1 ? " (x" + combo.toFixed(1) + ")" : "");
   document.getElementById("cps").innerText=format(cps);
 
   let autoShop=document.getElementById("autoShop");
   autoShop.innerHTML="";
-
   autos.forEach((a,i)=>{
-    if(clicks>=a.unlock){
+    if(clicks>=a.unlock || a.level > 0){
       let div=document.createElement("div");
       div.className="card";
       div.onclick=()=>buyAuto(i);
@@ -166,7 +206,6 @@ function update(){
 
   let upgradeShop=document.getElementById("upgradeShop");
   upgradeShop.innerHTML="";
-
   upgrades.forEach((u,i)=>{
     if(!u.bought){
       let div=document.createElement("div");
@@ -176,7 +215,6 @@ function update(){
       upgradeShop.appendChild(div);
     }
   });
-
   save();
 }
 
@@ -186,17 +224,20 @@ setInterval(()=>{
 },1000);
 
 function save(){
-  localStorage.setItem("save",JSON.stringify({clicks,perClick,autos,upgrades,autoMultiplier}));
+  localStorage.setItem("donkeySave",JSON.stringify({clicks, autos, upgrades, maxCombo}));
 }
 
 function load(){
-  let d=JSON.parse(localStorage.getItem("save"));
+  let d=JSON.parse(localStorage.getItem("donkeySave"));
   if(d){
     clicks=d.clicks||0;
-    perClick=d.perClick||1;
-    autos=d.autos||autos;
-    upgrades=d.upgrades||upgrades;
-    autoMultiplier=d.autoMultiplier||1;
+    if(d.autos) d.autos.forEach((a,i)=> { if(autos[i]) autos[i].level = a.level; autos[i].cost = a.cost; });
+    if(d.upgrades) d.upgrades.forEach((u,i)=> { if(upgrades[i]) upgrades[i].bought = u.bought; });
+    maxCombo = d.maxCombo || 1;
+    
+    // Ponovno zaženi cikle, če so kupljeni
+    if(upgrades.find(u=>u.id==="rain" && u.bought)) startRainCycle();
+    if(upgrades.find(u=>u.id==="adrenaline" && u.bought)) startAdrenalineCycle();
   }
   updateCPS();
 }

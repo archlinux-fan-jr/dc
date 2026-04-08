@@ -52,7 +52,7 @@ body.light {
 }
 
 #donkey:active {
-  transform: scale(0.9);
+  transform: scale(1.1);
 }
 
 /* FLOATING TEXT */
