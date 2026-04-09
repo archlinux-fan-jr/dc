@@ -1,5 +1,5 @@
 
-let clicks = 255555050;
+let clicks = 0;
 let basePerClick = 0.01;
 let perClick = 0.01;
 let cps = 0;
