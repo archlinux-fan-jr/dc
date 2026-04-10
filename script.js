@@ -1,5 +1,5 @@
 
-let clicks = 0;
+let clicks = 999999999929999990;
 let basePerClick = 0.01;
 let perClick = 0.01;
 let cps = 0;
@@ -28,24 +28,31 @@ let autos = [
   {name:"Kiddo Donkey",       base:0.20,          cost:40,              	level:0},
   {name:"Farm Donkey",        base:1,             cost:200,             	level:0},
   {name:"Factory Donkey",     base:2,             cost:500,             	level:0},
-  {name:"Mega Donkey",        base:5,            	cost:1250,           		level:0},
+  {name:"Kilo Donkey",        base:5,            	cost:1250,           		level:0},
   {name:"Ultra Donkey",       base:10,           	cost:3000,           		level:0},
-  {name:"God Donkey",         base:25,           	cost:12500,           	level:0},
+  {name:"Earth Donkey",       base:25,           	cost:12500,           	level:0},
   {name:"Galactic Donkey",    base:50,          	cost:25000,          		level:0},
   {name:"Quantum Donkey",     base:100,         	cost:50000,         		level:0},
   {name:"Multiverse Donkey",  base:250,         	cost:100000,        		level:0},
   {name:"Portal Donkey",      base:500,        		cost:250000,        		level:0},
   {name:"Atomic Donkey",      base:1000,       		cost:500000,       			level:0},
-  {name:"Nebula Donkey",      base:2500,       		cost:1000000,      			level:0},
+  {name:"Mega Donkey",      	base:2500,       		cost:1000000,      			level:0},
   {name:"Stellar Donkey",     base:5000,      		cost:2500000,     			level:0},
   {name:"Cosmic Donkey",      base:10000,     		cost:10000000,    			level:0},
   {name:"Eternal Donkey",     base:25000,     		cost:25000000,   				level:0},
   {name:"Infinity Donkey",    base:50000,    			cost:500000000,  				level:0},
-  {name:"Singularity Donkey", base:100000,   			cost:1000000000, 				level:0},
+  {name:"Giga Donkey", 				base:100000,   			cost:1000000000, 				level:0},
   {name:"Omni Donkey",        base:250000,   			cost:2500000000,				level:0},
   {name:"Legendary Donkey",   base:500000,  			cost:5000000000,				level:0},
-  {name:"Mythic Donkey",      base:9990000, 			cost:99990000000000,		level:0},
-  {name:"Unreachable Donkey", base:99900000000, 	cost:999900000000000000,level:0}
+  {name:"Singularity Donkey", base:1000000,  			cost:10000000000,				level:0},
+  {name:"Luna Donkey",   			base:2500000,  			cost:25000000000,				level:0},
+  {name:"Nebula Donkey",   		base:5000000,  			cost:50000000000,				level:0},
+  {name:"Super Dooper Donkey",base:10000000,  		cost:100000000000,			level:0},
+  {name:"Super Mega Ultra Donkey",base:25000000,  cost:250000000000,			level:0},
+  {name:"God Donkey",					base:50000000,  		cost:500000000000,			level:0},
+  {name:"Tera Donkey",				base:100000000,  		cost:1000000000000,			level:0},
+  {name:"Mythic Donkey",      base:9990000000, 		cost:99990000000000,		level:0},
+  {name:"Unreachable Donkey", base:999990000000, 	cost:99990000000000000,	level:0}
 ];
 
 // 1. DINAMIČNE NADGRADNJE
@@ -86,10 +93,11 @@ let upgrades = [
   
   { name: "Donkey rain", 			desc: "x3 farm every 5 mins for 1 min", cost: 250000000,bought: false, type: "special", 	id: "rain" },
   																																				
-  { name: "Quantum Click",		desc: "x20 manual click", 						cost: 5000000000, 	bought: false, type: "clickMult", value: 20 },
-  { name: "OMG Click", 				desc: "x50 manual click", 						cost: 200000000000,	bought: false, type: "clickMult", value: 50 },
-  { name: "Infinity Click", 	desc: "x999 manual click", 						cost: 99990000000000,bought: false, type: "clickMult", value: 999 },
-  { name: "Unreachable Click",desc: "x9999 manual click", 					cost: 9999000000000000000,bought: false, type: "clickMult", value: 9999 }
+  { name: "Dime Click",				desc: "manual x15 click", 						cost: 5000000000, 	bought: false, type: "clickMult", value: 15 },
+  { name: "Quantum Click", 		desc: "x20 manual click", 						cost: 75000000000,	bought: false, type: "clickMult", value: 20 },
+  { name: "OMG Click", 				desc: "x50 manual click", 						cost: 10000000000000,	bought: false, type: "clickMult", value: 50 },
+  { name: "Infinity Click", 	desc: "x999 manual click", 						cost: 999990000000000,bought: false, type: "clickMult", value: 999 },
+  { name: "Unreachable Click",desc: "x9999 manual click", 					cost: 99990000000000000,bought: false, type: "clickMult", value: 9999 }
   
 ];
 
