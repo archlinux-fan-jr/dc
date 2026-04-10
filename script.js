@@ -1,5 +1,5 @@
 
-let clicks = 0;
+let clicks = 999999999999990;
 let basePerClick = 0.01;
 let perClick = 0.01;
 let cps = 0;
@@ -460,6 +460,24 @@ function triggerJackpotEffects(bonusAmount) {
 
 }
 
+function updateProgressBars() {
+    // 1. Izračun za Upgrades (Manual)
+    const totalUpgrades = upgrades.length;
+    const boughtUpgrades = upgrades.filter(u => u.bought).length;
+    const manualPercent = (boughtUpgrades / totalUpgrades) * 100;
+    document.getElementById("manualProgress").style.height = manualPercent + "%";
+
+    // 2. Izračun za Autos
+    // Tukaj upoštevamo "odklenjenost" - vsak avtomat ima 1 nivo "odklenjenosti"
+    // ali pa vsoto vseh levelov glede na neko ciljno številko.
+    // Najbolj pregledno je: koliko različnih avtomatov si že kupil vsaj 1x.
+    const totalAutos = autos.length;
+    const unlockedAutos = autos.filter(a => a.level > 0).length;
+    const autoPercent = (unlockedAutos / totalAutos) * 100;
+    document.getElementById("autoProgress").style.height = autoPercent + "%";
+}
+
+
 function update() {
     perClick = calculatePerClick();
     document.getElementById("clicks").innerText = format(clicks);
@@ -487,6 +505,7 @@ function update() {
         card.style.opacity = clicks >= cost ? "1" : "0.5";
     });
 
+    updateProgressBars(); // <--- DODAJ TO VRSTICO
     save();
 }
 
