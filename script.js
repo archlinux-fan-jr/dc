@@ -1,5 +1,5 @@
 
-let clicks = 0;
+let clicks = 99999999990;
 let basePerClick = 0.01;
 let perClick = 0.01;
 let cps = 0;
@@ -379,17 +379,65 @@ function startRainCycle(remainingSeconds = 0) {
     setInterval(() => activateRain(60), 300000);
 }
 
+function roundToNiceNumber(n) {
+    // 1. POSEBNO PRAVILO ZA MAJHNE ZNESKE (pod 10 €)
+    // Tukaj zaokrožimo na 0.05, 0.10, 0.25, 0.50 ali celo število
+    if (n < 10) {
+        if (n < 1) return Math.ceil(n * 20) / 20; // Zaokroži na 0.05 (npr. 0.50 -> 0.60)
+        if (n < 5) return Math.ceil(n * 4) / 4;   // Zaokroži na 0.25
+        return Math.ceil(n * 2) / 2;              // Zaokroži na 0.50
+    }
+
+    // 2. PRAVILO ZA VEČJE ZNESKE (tvoja logika)
+    let s = Math.floor(n).toString();
+    let digits = s.length;
+    let first = parseInt(s[0]);
+    let second = parseInt(s[1] || 0);
+    let third = parseInt(s[2] || 0);
+
+    // Druga številka: soda ali 5
+    if (second !== 5 && second % 2 !== 0) {
+        second += 1;
+        if (second > 9) { first += 1; second = 0; }
+    }
+
+    // Tretja številka: samo 0 ali 5
+    if (third < 3) third = 0;
+    else if (third < 8) third = 5;
+    else {
+        third = 0;
+        second += 1;
+        // Ponovno preverimo sodo/5 po prenosu
+        if (second !== 5 && second % 2 !== 0) second += 1;
+        if (second > 9) { first += 1; second = 0; }
+    }
+
+    let result = first.toString() + second.toString() + third.toString();
+    while (result.length < digits) result += "0";
+    
+    return parseInt(result);
+}
+
 function buyAuto(i){
-  let a = autos[i];
-  if(clicks >= a.cost){
-    clicks -= a.cost;
-    a.level++;
-    // Povečamo ceno za 20%, a ne uporabimo Math.floor, 
-    // da ne zaokrožimo na 0, če je znesek nizek.
-    a.cost = a.cost * 1.2; 
-    updateCPS();
-    update();
-  }
+    let a = autos[i];
+    if(clicks >= a.cost){
+        clicks -= a.cost;
+        a.level++;
+        
+        // Izračun nove cene
+        let nextCost = a.cost * 1.2;
+        
+        // Preprečimo, da bi cena ostala ista zaradi zaokroževanja navzdol
+        let newPrice = roundToNiceNumber(nextCost);
+        if (newPrice <= a.cost) {
+            newPrice = a.cost + (a.cost < 1 ? 0.10 : 1);
+        }
+        
+        a.cost = newPrice;
+        
+        updateCPS(); 
+        update();
+    }
 }
 
 function updateCPS(){
