@@ -45,7 +45,7 @@ let autos = [
   {name:"Omni Donkey",        base:250000,   			cost:2500000000,				level:0},
   {name:"Legendary Donkey",   base:500000,  			cost:5000000000,				level:0},
   {name:"Mythic Donkey",      base:9990000, 			cost:99990000000000,		level:0},
-  {name:"Unreachable Donkey", base:99900000000, 	cost:9999000000000000000,level:0}
+  {name:"Unreachable Donkey", base:99900000000, 	cost:999900000000000000,level:0}
 ];
 
 // 1. DINAMIČNE NADGRADNJE
